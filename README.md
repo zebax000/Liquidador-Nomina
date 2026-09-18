@@ -65,8 +65,8 @@ Liquidador-Nomina/
 │   └── view/
 │       ├── console/
 │       │   └── consola.py
-│       └── gui/
-│           └── interfaz.py
+│       └── Gui/
+│           └── liquidador.py
 ├── tests/
 │   └── tests_nomina.py
 ├── docs/
@@ -84,7 +84,7 @@ Liquidador-Nomina/
 - `src/model/logica_nomina.py`: contiene la lógica principal de cálculo dividida en funciones con responsabilidades específicas.
 - `src/model/validacion.py`: contiene la clase que valida las entradas antes de calcular.
 - `src/view/console/consola.py`: contiene la interfaz de consola para ingresar los datos y mostrar el resultado.
-- `src/view/gui/interfaz.py`: contiene la interfaz gráfica en Kivy para ingresar datos, calcular el neto y presentar mensajes de error.
+- `src/view/gui/liquidador.py`: contiene la interfaz gráfica en Kivy para ingresar datos, calcular el neto y presentar mensajes de error.
 - `tests/tests_nomina.py`: contiene las pruebas unitarias desarrolladas con `unittest`.
 - `docs/`: contiene la matriz de casos de prueba y demás documentación del proyecto.
 - `README.md`: contiene la descripción general del proyecto y las instrucciones para su ejecución.
