@@ -74,8 +74,6 @@ Liquidador-Nomina/
 └── README.md
 ```
 
-> Si el archivo de la interfaz gráfica tiene un nombre o una ubicación diferente en tu repositorio, ajusta la ruta de ejecución indicada más abajo.
-
 ## Descripción de los archivos
 
 - `src/model/constantes.py`: contiene las constantes del cálculo, como los días del mes y las tasas de descuento.
@@ -84,7 +82,7 @@ Liquidador-Nomina/
 - `src/model/logica_nomina.py`: contiene la lógica principal de cálculo dividida en funciones con responsabilidades específicas.
 - `src/model/validacion.py`: contiene la clase que valida las entradas antes de calcular.
 - `src/view/console/consola.py`: contiene la interfaz de consola para ingresar los datos y mostrar el resultado.
-- `src/view/gui/liquidador.py`: contiene la interfaz gráfica en Kivy para ingresar datos, calcular el neto y presentar mensajes de error.
+- `src/view/Gui/liquidador.py`: contiene la interfaz gráfica en Kivy para ingresar datos, calcular el neto y presentar mensajes de error.
 - `tests/tests_nomina.py`: contiene las pruebas unitarias desarrolladas con `unittest`.
 - `docs/`: contiene la matriz de casos de prueba y demás documentación del proyecto.
 - `README.md`: contiene la descripción general del proyecto y las instrucciones para su ejecución.
@@ -151,7 +149,7 @@ pip install kivy
 Después, desde la carpeta principal del proyecto, ejecuta:
 
 ```bash
-python -m src.view.gui.interfaz
+python -m src.view.Gui.liquidador
 ```
 
 Se abrirá una ventana titulada **Liquidador de Nómina** con campos para ingresar el salario básico, los días trabajados, la bonificación, la comisión y otros descuentos. Presiona **Calcular** para obtener el neto a pagar.
