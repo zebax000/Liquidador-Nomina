@@ -16,7 +16,6 @@ Window.size = (480, 440)
 TITULO_ERROR_VALIDACION = "Error de validación"
 TITULO_ERROR_DATOS = "Datos inválidos"
 TITULO_ERROR_INESPERADO = "Error inesperado"
-
 TEXTO_RESULTADO_INICIAL = "$ 0.00"
 
 
@@ -26,14 +25,6 @@ class LiquidadorNominaApp(App):
     def build(self) -> BoxLayout:
         raiz = BoxLayout(orientation="vertical", padding=20, spacing=15)
 
-        encabezado = self._crear_encabezado()
-        formulario = self._crear_formulario()
-
-        raiz.add_widget(encabezado)
-        raiz.add_widget(formulario)
-        return raiz
-
-    def _crear_encabezado(self) -> BoxLayout:
         encabezado = BoxLayout(
             orientation="horizontal",
             size_hint=(1, 0.15),
@@ -60,14 +51,9 @@ class LiquidadorNominaApp(App):
 
         encabezado.add_widget(titulo)
         encabezado.add_widget(instruccion)
-        return encabezado
+        raiz.add_widget(encabezado)
 
-    def _crear_formulario(self) -> GridLayout:
-        formulario = GridLayout(
-            cols=2,
-            spacing=10,
-            size_hint=(1, 0.65),
-        )
+        formulario = GridLayout(cols=2, spacing=10, size_hint=(1, 0.55))
 
         self.input_salario = self._agregar_campo(formulario, "Salario básico:")
         self.input_dias = self._agregar_campo(formulario, "Días trabajados:")
@@ -75,31 +61,53 @@ class LiquidadorNominaApp(App):
         self.input_comision = self._agregar_campo(formulario, "Comisión:")
         self.input_descuentos = self._agregar_campo(formulario, "Otros descuentos:")
 
-        formulario.add_widget(Label(text="Neto a pagar:", bold=True))
-        formulario.add_widget(self._crear_fila_resultado())
+        raiz.add_widget(formulario)
 
-        return formulario
+        fila_botones = BoxLayout(
+            orientation="horizontal",
+            spacing=10,
+            size_hint=(1, 0.12),
+        )
 
-    def _crear_fila_resultado(self) -> BoxLayout:
-        fila_resultado = BoxLayout(orientation="horizontal", spacing=5)
-
-        boton_calcular = Button(text="Calcular", size_hint=(0.35, 1))
+        boton_calcular = Button(text="Calcular")
         boton_calcular.bind(on_press=self.calcular)
 
-        boton_limpiar = Button(text="Limpiar", size_hint=(0.30, 1))
+        boton_limpiar = Button(text="Limpiar")
         boton_limpiar.bind(on_press=self.limpiar_formulario)
+
+        fila_botones.add_widget(boton_calcular)
+        fila_botones.add_widget(boton_limpiar)
+        raiz.add_widget(fila_botones)
+
+        fila_resultado = BoxLayout(
+            orientation="horizontal",
+            size_hint=(1, 0.18),
+        )
+
+        etiqueta_resultado = Label(
+            text="Neto a pagar:",
+            bold=True,
+            halign="left",
+            valign="middle",
+            size_hint=(0.45, 1),
+        )
+        self._ajustar_texto(etiqueta_resultado)
 
         self.label_resultado = Label(
             text=TEXTO_RESULTADO_INICIAL,
             bold=True,
-            size_hint=(0.35, 1),
+            font_size=20,
+            halign="right",
+            valign="middle",
+            size_hint=(0.55, 1),
         )
+        self._ajustar_texto(self.label_resultado)
 
-        fila_resultado.add_widget(boton_calcular)
-        fila_resultado.add_widget(boton_limpiar)
+        fila_resultado.add_widget(etiqueta_resultado)
         fila_resultado.add_widget(self.label_resultado)
+        raiz.add_widget(fila_resultado)
 
-        return fila_resultado
+        return raiz
 
     @staticmethod
     def _ajustar_texto(label: Label) -> None:
@@ -178,13 +186,10 @@ class LiquidadorNominaApp(App):
         )
 
     def _leer_dias_enteros(self) -> int:
-        texto_dias = self.input_dias.text.strip()
-        dias = float(texto_dias)
+        dias = float(self.input_dias.text.strip())
 
         if not dias.is_integer():
-            raise ValueError(
-                "Los días trabajados deben ser un número entero."
-            )
+            raise ValueError("Los días trabajados deben ser un número entero.")
 
         return int(dias)
 
