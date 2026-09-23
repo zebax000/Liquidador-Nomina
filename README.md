@@ -3,9 +3,6 @@
 ## Integrantes
 
 - Sebastián Velásquez
-- Yeisner Giraldo
-- Samuel García
-- Juan Sebastián Leal
 
 ## Descripción
 
