@@ -11,8 +11,6 @@ from src.model.datos_nomina import DatosNomina
 from src.model.errores import ErrorNomina
 from src.model.logica_nomina import calcular_nomina
 
-Window.size = (480, 440)
-
 TITULO_ERROR_VALIDACION = "Error de validación"
 TITULO_ERROR_DATOS = "Datos inválidos"
 TITULO_ERROR_INESPERADO = "Error inesperado"
