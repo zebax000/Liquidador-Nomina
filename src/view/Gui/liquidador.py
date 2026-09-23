@@ -17,6 +17,8 @@ TITULO_ERROR_VALIDACION = "Error de validación"
 TITULO_ERROR_DATOS = "Datos inválidos"
 TITULO_ERROR_INESPERADO = "Error inesperado"
 
+TEXTO_RESULTADO_INICIAL = "$ 0.00"
+
 
 class LiquidadorNominaApp(App):
     title = "Liquidador de Nómina"
@@ -24,9 +26,18 @@ class LiquidadorNominaApp(App):
     def build(self) -> BoxLayout:
         raiz = BoxLayout(orientation="vertical", padding=20, spacing=15)
 
-        # Fila superior: título a la izquierda, instrucción a la derecha.
-        # Va justo arriba del formulario (arriba de los TextInput).
-        encabezado = BoxLayout(orientation="horizontal", size_hint=(1, 0.15))
+        encabezado = self._crear_encabezado()
+        formulario = self._crear_formulario()
+
+        raiz.add_widget(encabezado)
+        raiz.add_widget(formulario)
+        return raiz
+
+    def _crear_encabezado(self) -> BoxLayout:
+        encabezado = BoxLayout(
+            orientation="horizontal",
+            size_hint=(1, 0.15),
+        )
 
         titulo = Label(
             text="LIQUIDADOR DE NÓMINA",
@@ -49,9 +60,14 @@ class LiquidadorNominaApp(App):
 
         encabezado.add_widget(titulo)
         encabezado.add_widget(instruccion)
-        raiz.add_widget(encabezado)
+        return encabezado
 
-        formulario = GridLayout(cols=2, spacing=10, size_hint=(1, 0.65))
+    def _crear_formulario(self) -> GridLayout:
+        formulario = GridLayout(
+            cols=2,
+            spacing=10,
+            size_hint=(1, 0.65),
+        )
 
         self.input_salario = self._agregar_campo(formulario, "Salario básico:")
         self.input_dias = self._agregar_campo(formulario, "Días trabajados:")
@@ -60,36 +76,45 @@ class LiquidadorNominaApp(App):
         self.input_descuentos = self._agregar_campo(formulario, "Otros descuentos:")
 
         formulario.add_widget(Label(text="Neto a pagar:", bold=True))
+        formulario.add_widget(self._crear_fila_resultado())
 
-        fila_resultado = BoxLayout(orientation="horizontal", spacing=10)
-        boton_calcular = Button(text="Calcular", size_hint=(0.5, 1))
+        return formulario
+
+    def _crear_fila_resultado(self) -> BoxLayout:
+        fila_resultado = BoxLayout(orientation="horizontal", spacing=5)
+
+        boton_calcular = Button(text="Calcular", size_hint=(0.35, 1))
         boton_calcular.bind(on_press=self.calcular)
-        self.label_resultado = Label(text="$ 0.00", bold=True)
-        fila_resultado.add_widget(boton_calcular)
-        fila_resultado.add_widget(self.label_resultado)
-        formulario.add_widget(fila_resultado)
 
-        raiz.add_widget(formulario)
-        return raiz
+        boton_limpiar = Button(text="Limpiar", size_hint=(0.30, 1))
+        boton_limpiar.bind(on_press=self.limpiar_formulario)
+
+        self.label_resultado = Label(
+            text=TEXTO_RESULTADO_INICIAL,
+            bold=True,
+            size_hint=(0.35, 1),
+        )
+
+        fila_resultado.add_widget(boton_calcular)
+        fila_resultado.add_widget(boton_limpiar)
+        fila_resultado.add_widget(self.label_resultado)
+
+        return fila_resultado
 
     @staticmethod
     def _ajustar_texto(label: Label) -> None:
-        """
-        Ajusta 'text_size' al tamaño real del widget cada vez que este
-        cambia de tamaño. Es necesario porque 'halign'/'valign' en Kivy
-        no tienen efecto si 'text_size' no coincide con el tamaño del
-        Label (por defecto Kivy centra el texto dentro de una caja del
-        tamaño del texto, no del widget).
-
-        Se centraliza aquí porque este mismo ajuste se necesita en varios
-        Label de la interfaz (titulo, instruccion, mensajes de error).
-        """
-        label.bind(size=lambda widget, tam: setattr(widget, "text_size", tam))
+        label.bind(
+            size=lambda widget, tamanio: setattr(widget, "text_size", tamanio)
+        )
 
     @staticmethod
     def _agregar_campo(contenedor: GridLayout, texto: str) -> TextInput:
         contenedor.add_widget(Label(text=texto))
-        campo = TextInput(multiline=False, font_size=18)
+
+        campo = TextInput(
+            multiline=False,
+            font_size=18,
+        )
         contenedor.add_widget(campo)
         return campo
 
@@ -105,10 +130,11 @@ class LiquidadorNominaApp(App):
         except ValueError as error:
             mensaje = (
                 f"Qué sucedió: no fue posible interpretar un valor ingresado ({error}).\n"
-                "Por qué: uno o más campos están vacíos o contienen texto no numérico.\n"
+                "Por qué: uno o más campos están vacíos, contienen texto no numérico "
+                "o los días trabajados no son un número entero.\n"
                 "Dónde: formulario del Liquidador de Nómina.\n"
-                "Cómo se soluciona: ingrese solo números en todos los campos "
-                "(use punto para los decimales y no deje campos vacíos)."
+                "Cómo se soluciona: ingrese solo números en todos los campos, use "
+                "punto para los decimales y escriba los días como un número entero."
             )
             self._mostrar_error(TITULO_ERROR_DATOS, mensaje)
 
@@ -122,9 +148,23 @@ class LiquidadorNominaApp(App):
             )
             self._mostrar_error(TITULO_ERROR_INESPERADO, mensaje)
 
+    def limpiar_formulario(self, instance: Button) -> None:
+        campos = (
+            self.input_salario,
+            self.input_dias,
+            self.input_bonificacion,
+            self.input_comision,
+            self.input_descuentos,
+        )
+
+        for campo in campos:
+            campo.text = ""
+
+        self.label_resultado.text = TEXTO_RESULTADO_INICIAL
+
     def _leer_datos(self) -> DatosNomina:
         salario = float(self.input_salario.text)
-        dias = int(float(self.input_dias.text))
+        dias = self._leer_dias_enteros()
         bonificacion = float(self.input_bonificacion.text)
         comision = float(self.input_comision.text)
         descuentos = float(self.input_descuentos.text)
@@ -137,20 +177,43 @@ class LiquidadorNominaApp(App):
             descuentos=descuentos,
         )
 
+    def _leer_dias_enteros(self) -> int:
+        texto_dias = self.input_dias.text.strip()
+        dias = float(texto_dias)
+
+        if not dias.is_integer():
+            raise ValueError(
+                "Los días trabajados deben ser un número entero."
+            )
+
+        return int(dias)
+
     def _mostrar_resultado(self, neto: float) -> None:
         self.label_resultado.text = f"$ {neto:,.2f}"
 
     def _mostrar_error(self, titulo: str, mensaje: str) -> None:
-        contenido = BoxLayout(orientation="vertical", padding=10, spacing=10)
+        contenido = BoxLayout(
+            orientation="vertical",
+            padding=10,
+            spacing=10,
+        )
 
-        etiqueta = Label(text=mensaje, halign="left", valign="top")
+        etiqueta = Label(
+            text=mensaje,
+            halign="left",
+            valign="top",
+        )
         self._ajustar_texto(etiqueta)
         contenido.add_widget(etiqueta)
 
         boton_cerrar = Button(text="Cerrar", size_hint=(1, 0.25))
         contenido.add_widget(boton_cerrar)
 
-        popup = Popup(title=titulo, content=contenido, size_hint=(0.85, 0.6))
+        popup = Popup(
+            title=titulo,
+            content=contenido,
+            size_hint=(0.85, 0.6),
+        )
         boton_cerrar.bind(on_press=popup.dismiss)
         popup.open()
 
