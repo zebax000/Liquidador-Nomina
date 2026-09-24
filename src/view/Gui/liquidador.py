@@ -6,6 +6,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
+from kivy.utils import platform
 
 from src.model.datos_nomina import DatosNomina
 from src.model.errores import ErrorNomina
